@@ -1,19 +1,29 @@
 <template>
   <div ref="windowContainer" class="vue-window" @mousemove="_onMouseMove">
-    <div
-      ref="windowElem"
-      class="vue-window__content"
-      @mouseup="_onMouseUp"
-      @mousedown="_onMouseDown"
-    >
-      window
+    <div ref="windowBody" class="vue-window__body">
+      <div
+        class="vue-window__header"
+        @mouseup="_onMouseUp"
+        @mousedown="_onMouseDown"
+      >
+        <slot name="header"> </slot>
+      </div>
+      <div class="vue-window__content"><slot name="content"> </slot></div>
+      <div class="vue-window__footer"><slot name="footer"> </slot></div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { Ref, ref } from "vue";
+import { Ref, ref, defineProps, onMounted } from "vue";
 
-const windowElem: Ref<HTMLElement | null> = ref(null);
+type Props = {
+  initialPosition: { left: number | string; top: number | string };
+  initialSize: { width: number | string; height: number | string };
+};
+
+const props = defineProps<Props>();
+
+const windowBody: Ref<HTMLElement | null> = ref(null);
 
 const windowContainer: Ref<HTMLElement | null> = ref(null);
 
@@ -24,10 +34,10 @@ const shiftX = ref(0);
 const shiftY = ref(0);
 
 const _setPosition = (event: MouseEvent) => {
-  if (!windowElem.value) return;
+  if (!windowBody.value) return;
 
-  windowElem.value.style.left = event.pageX - shiftX.value + "px";
-  windowElem.value.style.top = event.pageY - shiftY.value + "px";
+  windowBody.value.style.left = event.pageX - shiftX.value + "px";
+  windowBody.value.style.top = event.pageY - shiftY.value + "px";
 };
 
 const _onMouseMove = (event: MouseEvent) => {
@@ -37,16 +47,24 @@ const _onMouseMove = (event: MouseEvent) => {
 };
 
 const _onMouseDown = (event: MouseEvent) => {
-  if (!windowElem.value) return;
+  if (!windowBody.value) return;
 
-  shiftX.value = event.clientX - windowElem.value.getBoundingClientRect().left;
-  shiftY.value = event.clientY - windowElem.value.getBoundingClientRect().top;
+  shiftX.value = event.clientX - windowBody.value.getBoundingClientRect().left;
+  shiftY.value = event.clientY - windowBody.value.getBoundingClientRect().top;
   isDrag.value = true;
 };
 
 const _onMouseUp = () => {
   isDrag.value = false;
 };
+
+onMounted(() => {
+  if (!windowBody.value) return;
+  windowBody.value.style.left = props.initialPosition.left + "px";
+  windowBody.value.style.top = props.initialPosition.top + "px";
+  windowBody.value.style.width = props.initialSize.width + "px";
+  windowBody.value.style.height = props.initialSize.height + "px";
+});
 </script>
 <style>
 .vue-window {
@@ -54,10 +72,26 @@ const _onMouseUp = () => {
   height: 100vw;
 }
 
-.vue-window__content {
-  background-color: aqua;
+.vue-window__body {
   position: absolute;
-  width: 500px;
-  height: 500px;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vue-window__header {
+  background-color: aqua;
+  height: 50px;
+}
+
+.vue-window__content {
+  background-color: cadetblue;
+  height: inherit;
+}
+
+.vue-window__footer {
+  height: 50px;
+  background-color: antiquewhite;
 }
 </style>
