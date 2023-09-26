@@ -1,20 +1,22 @@
 <template>
-  <VueWindow
-    :initialPosition="{ left: 50, top: 50 }"
-    :initialSize="{ width: 500, height: 500 }"
-    ><template #header>Header</template><template #content>Content</template
-    ><template #footer>Footer</template></VueWindow
-  >
+  <div>test</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import VueWindow from "./components/VueWindow.vue";
+// import VueWindow from "./components/VueWindow.vue";
 
 export default defineComponent({
   name: "App",
-  components: {
-    VueWindow,
+  created() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    console.log(this.$windowManager);
+  },
+  mounted() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    this.$windowManager.windows.testWindow.show();
   },
 });
 </script>
